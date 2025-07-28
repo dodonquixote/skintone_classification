@@ -4,4 +4,4 @@ opencv-python
 numpy
 tensorflow
 gunicorn
-opencv-python-headless
+opencv-python-headless==4.9.0.80
