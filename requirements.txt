@@ -1,6 +1,7 @@
 Flask
 opencv-python
 numpy
+pillow
 tensorflow
 gunicorn
 opencv-python-headless==4.9.0.80
