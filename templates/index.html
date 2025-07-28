@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Tone Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .upload-section {
+            border: 3px dashed #3498db;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            background: rgba(52, 152, 219, 0.05);
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #2980b9;
+            background: rgba(52, 152, 219, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .upload-section.dragover {
+            border-color: #27ae60;
+            background: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .image-preview {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .preview-img {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .result-section {
+            display: none;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .skin-tone-result {
+            background: linear-gradient(45deg, #4CAF50, #2E7D32);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skin-tone-result::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .confidence-bar {
+            background: #ecf0f1;
+            height: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 25px 0;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 5px solid rgba(236, 240, 241, 0.3);
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-message {
+            display: none;
+            background: #e74c3c;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .info-section {
+            background: rgba(241, 196, 15, 0.1);
+            border-left: 4px solid #f1c40f;
+            padding: 25px;
+            margin-top: 30px;
+            border-radius: 0 15px 15px 0;
+        }
+
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-section p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 25px auto 0;
+            transition: all 0.3s ease;
+            display: block;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(127, 140, 141, 0.2);
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(127, 140, 141, 0.3);
+        }
+        
+        /* New styles for recommendation sections */
+        .recommendation-block {
+            margin-top: 35px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .recommendation-block h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .recommendation-block p.description {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+            transition: transform 0.3s ease;
+        }
+
+        .color-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .color-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .color-name {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 600;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+            width: 100%;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-section {
+                padding: 25px;
+            }
+            
+            .preview-img {
+                max-width: 250px;
+                max-height: 250px;
+            }
+            
+            .color-circle {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-palette"></i> Skin Tone Analyzer</h1>
+            <p>Unggah foto Anda untuk mendapatkan rekomendasi warna outfit yang paling sesuai berdasarkan klasifikasi Monk Skin Tone</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <div class="upload-text">Seret & lepas gambar di sini atau klik untuk memilih</div>
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-folder-open"></i> Pilih Gambar
+            </button>
+        </div>
+
+        <div class="image-preview" id="imagePreview">
+            <img id="previewImg" class="preview-img" alt="Preview Gambar">
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Menganalisis warna kulit...</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title"><i class="fas fa-chart-line"></i> Hasil Analisis</div>
+            <div class="skin-tone-result" id="skinToneResult"></div>
+            
+            <div>
+                <strong>Tingkat Kepercayaan:</strong>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                </div>
+            </div>
+            
+            <!-- Bagian Rekomendasi Baru -->
+            <div id="recommendation-container">
+                <!-- Warna yang Direkomendasikan -->
+                <div class="recommendation-block">
+                    <h3><i class="fas fa-thumbs-up" style="color: #27ae60;"></i> Warna yang Direkomendasikan</h3>
+                    <p class="description" id="recommended-desc"></p>
+                    <div class="color-palette" id="recommended-palette">
+                        <!-- Palet warna rekomendasi akan diisi di sini -->
+                    </div>
+                </div>
+
+                <!-- Warna yang Dihindari -->
+                <div class="recommendation-block">
+                    <h3><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Warna yang Sebaiknya Dihindari</h3>
+                    <p class="description" id="avoid-desc"></p>
+                    <div class="color-palette" id="avoid-palette">
+                        <!-- Palet warna yang dihindari akan diisi di sini -->
+                    </div>
+                </div>
+            </div>
+            
+            <button class="reset-btn" onclick="resetForm()"><i class="fas fa-redo"></i> Analisis Gambar Lain</button>
+        </div>
+
+        <div class="info-section">
+            <h3><i class="fas fa-info-circle"></i> Informasi</h3>
+            <p><strong>Format yang didukung:</strong> JPG, PNG, JPEG</p>
+            <p><strong>Ukuran maksimal:</strong> 10MB</p>
+            <p><strong>Cara kerja:</strong> Sistem akan melakukan segmentasi kulit dan mengklasifikasikan skin tone ke dalam 10 kategori berdasarkan Monk Skin Tone Scale.</p>
+            <p><strong>Akurasi:</strong> Model menggunakan deep learning untuk memberikan prediksi akurat berdasarkan analisis warna kulit.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Skin Tone Analyzer &copy; 2024 | Rekomendasi Warna Outfit Berdasarkan Monk Skin Tone Scale
+    </div>
+
+    <script>
+        // Data rekomendasi berdasarkan skin tone
+        const recommendations = {
+            light: {
+                recommended_desc: "Warna-warna ini menciptakan kontras yang indah dengan kulit terang Anda, membuatnya tampak lebih cerah dan bersinar.",
+                avoid_desc: "Warna-warna ini cenderung terlalu mirip dengan warna kulit Anda atau terlalu pucat, sehingga bisa membuat penampilan terlihat kusam.",
+                recommended_colors: [
+                    { name: 'Navy Blue', hex: '#000080' }, { name: 'Emerald', hex: '#50C878' },
+                    { name: 'Ruby Red', hex: '#E0115F' }, { name: 'Lavender', hex: '#E6E6FA' },
+                    { name: 'Charcoal', hex: '#36454F' }, { name: 'Soft Peach', hex: '#FFDAB9' }
+                ],
+                avoid_colors: [
+                    { name: 'Beige', hex: '#F5F5DC' }, { name: 'Ivory', hex: '#FFFFF0' },
+                    { name: 'Pastel Yellow', hex: '#FFFACD' }, { name: 'Light Gray', hex: '#D3D3D3' }
+                ]
+            },
+            medium: {
+                recommended_desc: "Warna-warna hangat dan kaya ini akan menonjolkan rona alami kulit medium Anda, memberikan kesan sehat dan bercahaya.",
+                avoid_desc: "Warna-warna ini bisa 'menyatu' dengan warna kulit Anda atau kurang memberikan definisi, sehingga penampilan kurang menonjol.",
+                recommended_colors: [
+                    { name: 'Terracotta', hex: '#E2725B' }, { name: 'Olive Green', hex: '#808000' },
+                    { name: 'Mustard', hex: '#FFDB58' }, { name: 'Rust', hex: '#B7410E' },
+                    { name: 'Teal', hex: '#008080' }, { name: 'Cream', hex: '#FFFDD0' }
+                ],
+                avoid_colors: [
+                    { name: 'Cokelat Senada', hex: '#967969' }, { name: 'Taupe', hex: '#483C32' },
+                    { name: 'Pastel Pucat', hex: '#E0BBE4' }, { name: 'Abu-abu Kusam', hex: '#838383' }
+                ]
+            },
+            dark: {
+                recommended_desc: "Warna-warna cerah dan jernih ini menciptakan kontras yang memukau dengan kulit gelap Anda, memberikan tampilan yang berani dan energik.",
+                avoid_desc: "Warna-warna gelap dan kusam ini kurang memberikan kontras, yang berisiko membuat siluet Anda kurang terlihat jelas.",
+                recommended_colors: [
+                    { name: 'Royal Blue', hex: '#4169E1' }, { name: 'Fuchsia', hex: '#FF00FF' },
+                    { name: 'Lemon Yellow', hex: '#FFF44F' }, { name: 'Pure White', hex: '#FFFFFF' },
+                    { name: 'Bright Red', hex: '#FF0000' }, { name: 'Gold', hex: '#FFD700' }
+                ],
+                avoid_colors: [
+                    { name: 'Dark Brown', hex: '#3E2723' }, { name: 'Black', hex: '#000000' },
+                    { name: 'Dark Gray', hex: '#A9A9A9' }, { name: 'Navy Gelap', hex: '#00003B' }
+                ]
+            }
+        };
+
+        // Elemen DOM
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultSection = document.getElementById('resultSection');
+        const skinToneResult = document.getElementById('skinToneResult');
+        const confidenceFill = document.getElementById('confidenceFill');
+        const recommendedPalette = document.getElementById('recommended-palette');
+        const avoidPalette = document.getElementById('avoid-palette');
+        const recommendedDesc = document.getElementById('recommended-desc');
+        const avoidDesc = document.getElementById('avoid-desc');
+
+        // Fungsi untuk menangani pemilihan file
+        function handleFileSelect(file) {
+            if (!file.type.match('image.*')) {
+                showError('Harap pilih file gambar yang valid (JPG, PNG, JPEG)');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Ukuran file terlalu besar. Maksimal 10MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                imagePreview.style.display = 'block';
+                uploadSection.style.display = 'none';
+                hideError();
+                predictWithBackend(file);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Fungsi untuk mengirim gambar ke backend dan menangani respons
+        function predictWithBackend(file) {
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                loading.style.display = 'none';
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    displayResults(data.skintone, data.confidence);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                console.error('Fetch Error:', error);
+                showError(`Terjadi kesalahan: ${error.message}. Pastikan server backend berjalan.`);
+            });
+        }
+
+        // Fungsi untuk menampilkan hasil
+        function displayResults(predictedClass, confidence) {
+            const classNumber = parseInt(predictedClass.split('_')[1]);
+            let skinCategory = '';
+            let skinToneLabel = '';
+
+            if (classNumber <= 3) { skinCategory = 'light'; skinToneLabel = 'Kulit Terang'; } 
+            else if (classNumber <= 7) { skinCategory = 'medium'; skinToneLabel = 'Kulit Sawo Matang'; } 
+            else { skinCategory = 'dark'; skinToneLabel = 'Kulit Gelap'; }
+            
+            skinToneResult.textContent = `${skinToneLabel} MST ${classNumber}`;
+            const confidencePercent = (confidence * 100).toFixed(0);
+            confidenceFill.style.width = `${confidencePercent}%`;
+            confidenceFill.textContent = `${confidencePercent}%`;
+
+            renderPalettes(skinCategory);
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Fungsi untuk merender semua palet
+        function renderPalettes(skinCategory) {
+            const rec = recommendations[skinCategory];
+            
+            // Set deskripsi
+            recommendedDesc.textContent = rec.recommended_desc;
+            avoidDesc.textContent = rec.avoid_desc;
+            
+            // Kosongkan palet
+            recommendedPalette.innerHTML = '';
+            avoidPalette.innerHTML = '';
+            
+            // Render palet rekomendasi
+            rec.recommended_colors.forEach(color => {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'color-item';
+                colorItem.innerHTML = `
+                    <div class="color-circle" style="background-color: ${color.hex}; border-color: ${color.hex.toUpperCase() === '#FFFFFF' ? '#ddd' : 'white'};"></div>
+                    <div class="color-name">${color.name}</div>
+                `;
+                recommendedPalette.appendChild(colorItem);
+            });
+
+            // Render palet yang dihindari
+             rec.avoid_colors.forEach(color => {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'color-item';
+                colorItem.innerHTML = `
+                    <div class="color-circle" style="background-color: ${color.hex}; border-color: ${color.hex.toUpperCase() === '#FFFFFF' ? '#ddd' : 'white'};"></div>
+                    <div class="color-name">${color.name}</div>
+                `;
+                avoidPalette.appendChild(colorItem);
+            });
+        }
+
+        // Fungsi untuk menampilkan pesan error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            resultSection.style.display = 'none';
+        }
+
+        // Fungsi untuk menyembunyikan pesan error
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Fungsi untuk mereset form
+        function resetForm() {
+            fileInput.value = '';
+            imagePreview.style.display = 'none';
+            resultSection.style.display = 'none';
+            loading.style.display = 'none';
+            uploadSection.style.display = 'block';
+            hideError();
+        }
+
+        // Event listeners
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        uploadSection.addEventListener('click', (e) => {
+            if (e.target.matches('.upload-section, .upload-icon, .upload-text')) {
+                fileInput.click();
+            }
+        });
+
+    </script>
+</body>
+</html>
