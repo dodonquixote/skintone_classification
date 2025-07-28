@@ -6,7 +6,7 @@ import tensorflow as tf
 
 # --- Konfigurasi ---
 # Pastikan path ini benar sesuai dengan lokasi model Anda
-MODEL_PATH = 'model_mst/best_model_temp.h5' 
+MODEL_PATH = 'model/best_model_temp.h5' 
 IMG_SIZE = (224, 224)
 # Pastikan jumlah label sesuai dengan output model Anda (10 kelas)
 LABELS = [f'mst_{i+1}' for i in range(10)]
