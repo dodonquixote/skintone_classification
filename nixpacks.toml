@@ -1,8 +1,10 @@
 [phases.build]
 nixPkgs = [
-  "libSM",
-  "libglvnd",
+  "gcc",
+  "python39",
   "tbb",
+  "xorg.libSM",    # Gunakan nama resmi
+  "libglvnd",
   "xorg.libXext",
   "xorg.libXrender"
 ]
