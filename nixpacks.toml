@@ -3,8 +3,9 @@ nixPkgs = [
   "gcc",
   "python39",
   "tbb",
-  "xorg.libSM",    # Gunakan nama resmi
+  "mesa",              # Untuk libGL
   "libglvnd",
   "xorg.libXext",
-  "xorg.libXrender"
+  "xorg.libXrender",
+  "xorg.libSM"
 ]
