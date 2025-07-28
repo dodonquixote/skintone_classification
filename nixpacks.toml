@@ -1,8 +1,8 @@
 [phases.setup]
 nixPkgs = [
-    "tbb",           # Untuk libtbb
-    "libGL",         # Untuk OpenGL
-    "libSM",         # Untuk Session Management
-    "libXext",       # Untuk X11 extensions
-    "libXrender"     # Untuk X11 rendering
+    "tbb@2021.12.0",
+    "libglvnd@1.7.0",
+    "libSM@1.2.3",
+    "xorg.libXext@1.3.4",
+    "xorg.libXrender@0.9.10"
 ]
