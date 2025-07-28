@@ -1,2 +1,8 @@
-[start]
-command = "gunicorn app:app"
+[phases.setup]
+nixPkgs = [
+    "tbb",           # Untuk libtbb
+    "libGL",         # Untuk OpenGL
+    "libSM",         # Untuk Session Management
+    "libXext",       # Untuk X11 extensions
+    "libXrender"     # Untuk X11 rendering
+]
