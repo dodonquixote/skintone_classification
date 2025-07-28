@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
 import os
 import cv2
 import numpy as np
@@ -14,7 +13,6 @@ LABELS = [f'mst_{i+1}' for i in range(10)]
 
 # --- Inisialisasi Aplikasi Flask & Model ---
 app = Flask(__name__)
-CORS(app) # Mengizinkan permintaan dari domain lain (penting untuk pengembangan lokal)
 
 # Memuat model saat aplikasi dimulai
 try:
