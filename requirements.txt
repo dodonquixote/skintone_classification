@@ -4,3 +4,4 @@ opencv-python
 numpy
 tensorflow
 gunicorn
+opencv-python-headless
